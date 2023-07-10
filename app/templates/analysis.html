@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="../static/logo.png" style="max-width:70px"> ToDo</a>
+
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{{ url_for('mainpage') }}">Home</a>
+                    </li>
+                    {% if not session['loggedin'] %}
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('login') }}">Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('register') }}">Tasks</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('tasks') }}">Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('analysis') }}">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{{ url_for('logout') }}" method="post">
+                            <button class="nav-link">Logout</button>
+                        </form>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container pt-5">
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#latency" data-bs-toggle="tab">Latency of Late
+                    Tasks</a></li>
+            <li class="nav-item"><a class="nav-link" href="#avg_time" data-bs-toggle="tab">Average Duration</a></li>
+            <li class="nav-item"><a class="nav-link" href="#type_count" data-bs-toggle="tab">Number of Completed Tasks
+                    by Task Type</a></li>
+            <li class="nav-item"><a class="nav-link" href="#deadline" data-bs-toggle="tab">Ascending Deadline </a></li>
+            <li class="nav-item"><a class="nav-link" href="#longest" data-bs-toggle="tab">Tasks with Longest Completition Time</a></li>
+        </ul>
+
+        <div class="tab-content ">
+            <div class="tab-pane active" id="latency">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Title of Task Completed After Deadline</th>
+                        <th>Latency</th>
+                    </tr>
+                    {% for task in late_tasks %}
+                    <tr>
+                        <td> {{task.title}} </td>
+                        <td> {{task.difference}} </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="tab-pane" id="avg_time">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Average Time of Task Completition</th>
+                    </tr>
+                    <tr>
+                        <td> {{ time.avg_time }} </td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <div class="tab-pane" id="type_count">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Task Type</th>
+                        <th>Number of Completed Tasks</th>
+                    </tr>
+                    {% for t in type_count %}
+                    <tr>
+                        <td> {{ t.task_type }} </td>
+                        <td> {{ t.cnt }} </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+
+            </div>
+            <div class="tab-pane" id="deadline">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Deadline</th>
+                    </tr>
+                    {% for t in deadline %}
+                    <tr>
+                        <td> {{ t.title }} </td>
+                        <td> {{ t.deadline }} </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+            <div class="tab-pane" id="longest">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Completition Duration</th>
+                    </tr>
+                    {% for t in longest %}
+                    <tr>
+                        <td> {{ t.title }} </td>
+                        <td> {{ t.duration }} </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Bootstrap core JavaScript
+        ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

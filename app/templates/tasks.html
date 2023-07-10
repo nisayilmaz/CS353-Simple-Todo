@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+            <img src="../static/logo.png" style="max-width:70px"> ToDo</a>
+            
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{{ url_for('mainpage') }}">Home</a>
+                    </li>
+                {% if not session['loggedin'] %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('login') }}">Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('register') }}">Tasks</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('tasks') }}">Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('analysis') }}">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{{ url_for('logout') }}" method="post">
+                        <button class="nav-link">Logout</button>
+                    </form>
+                    </li>
+                {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if message is defined and message %}
+			<div class="alert alert-warning">{{ message }}</div>
+	{% endif %}
+    <div id="exTab1" class="container pt-5">
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#unfinished" data-bs-toggle="tab">Unfinished</a></li>
+            <li class="nav-item"><a class="nav-link" href="#finished" data-bs-toggle="tab">Finished</a></li>
+            <li class="nav-item"><a class="nav-link" href="#all" data-bs-toggle="tab">All</a></li>
+            <li class="nav-item"><a class="nav-link" href="#add" data-bs-toggle="tab">Add Task</a></li>
+        </ul>
+
+        <div class="tab-content ">
+            <div class="tab-pane active" id="unfinished">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Creation Time</th>
+                        <th>Task Type</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    {% for ut in unfinished %}
+                    <tr>
+                        <td> {{ut.title}} </td>
+                        <td> {{ut.description}} </td>
+                        <td> {{ut.status}} </td>
+                        <td> {{ut.deadline}} </td>
+                        <td> {{ut.creation_time}} </td>
+                        <td> {{ut.task_type}} </td>
+                        <td><button type="button" class="btn btn-light" data-bs-toggle="modal"
+                                data-bs-target="#edit{{ut.id}}">Edit</button></td>
+                        <td>
+                            <form action="{{ url_for('delete', id = ut.id) }}" method="post"> <button
+                                    class="btn btn-light">Delete</button></form>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('complete', id = ut.id) }}" method="post"> <button
+                                    class="btn btn-light">Mark Completed</button></form>
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="edit{{ut.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Task</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ url_for('edit', id = ut.id) }}" method="post">
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="title">Title</label>
+                                            <input class="form-control" type="text" name="title">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="desc">Description</label>
+                                            <input class="form-control" type="text" name="description">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="deadline">Deadline</label>
+                                            <input class="form-control" type="datetime-local" name="deadline">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="type">Type</label>
+                                            <select class="form-control" name="task_type">
+                                                <option value="">Task Type</option>
+                                                {% for type in types %}
+                                                <option value="{{type.type}}">{{type.type}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-light mt-4" type="submit">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="tab-pane" id="finished">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Creation Time</th>
+                        <th>Completion Time</th>
+                        <th>Task Type</th>
+                        <th></th>
+                        <th></th>
+
+                    </tr>
+                    {% for ft in finished %}
+                    <tr>
+                        <td> {{ft.title}} </td>
+                        <td> {{ft.description}} </td>
+                        <td> {{ft.status}} </td>
+                        <td> {{ft.deadline}} </td>
+                        <td> {{ft.creation_time }} </td>
+                        <td> {{ft.done_time}} </td>
+                        <td> {{ft.task_type}} </td>
+                        <td><button type="button" class="btn btn-light" data-bs-toggle="modal"
+                            data-bs-target="#edit_finished{{ft.id}}">Edit</button></td>
+                    <td>
+                        <form action="{{ url_for('delete', id = ft.id) }}" method="post"> <button
+                                class="btn btn-light">Delete</button></form>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="edit_finished{{ft.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Task</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ url_for('edit', id = ft.id) }}" method="post">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="title">Title</label>
+                                        <input class="form-control" type="text" name="title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="desc">Description</label>
+                                        <input class="form-control" type="text" name="description">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="deadline">Deadline</label>
+                                        <input class="form-control" type="datetime-local" name="deadline">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="type">Type</label>
+                                        <select class="form-control" name="task_type">
+                                            <option value="">Task Type</option>
+                                            {% for type in types %}
+                                            <option value="{{type.type}}">{{type.type}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-light mt-4" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    {% endfor %}
+                </table>
+
+            </div>
+            <div class="tab-pane" id="all">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Creation Time</th>
+                        <th>Completion Time</th>
+                        <th>Task Type</th>
+                    </tr>
+                    {% for ft in all_tasks %}
+                    <tr>
+                        <td> {{ft.title}} </td>
+                        <td> {{ft.description}} </td>
+                        <td> {{ft.status}} </td>
+                        <td> {{ft.deadline}} </td>
+                        <td> {{ft.creation_time }} </td>
+                        <td> {{ft.done_time}} </td>
+                        <td> {{ft.task_type}} </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="tab-pane" id="add">
+                <div class="col-6">
+                    <form action="{{ url_for('tasks') }}" method="post">
+
+                        <div class="form-group">
+                            <label class="form-label" for="username">Title</label>
+                            <input class="form-control" type="text" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="username">Description</label>
+                            <input class="form-control" type="text" name="description" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="username">Deadline</label>
+                            <input class="form-control" type="datetime-local" name="deadline" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="username">Type</label>
+                            <select class="form-control" name="type">
+                                {% for type in types %}
+                                <option value="{{type.type}}">{{type.type}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-light mt-4" type="submit">Add</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Bootstrap core JavaScript
+        ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
